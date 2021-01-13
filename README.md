@@ -1,0 +1,1 @@
+# CarouselLight - lightweight React component
