@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import CarouselLight from './components/CarouselLight/CarouselLight';
+import CarouselLight from './components/CarouselLight';
 
 import './App.css';
 
