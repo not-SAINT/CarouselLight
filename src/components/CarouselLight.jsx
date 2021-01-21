@@ -10,7 +10,7 @@ const MOUSE_SPEED = 3;
 
 const CarouselLight = ({ data, pagination, arrows, slidesPerView }) => {
   const [carouselState, setCarouselState] = useState({
-    activeSlide: 0,
+    activeIndex: 0,
     offset: 0,
   });
   const [containerWidth, setContainerWidth] = useState(0);
@@ -24,13 +24,17 @@ const CarouselLight = ({ data, pagination, arrows, slidesPerView }) => {
 
   const carouselRef = useRef(null);
 
-  const lastSlideIndex = data.length - 1;
+  const lastSlideIndex = data.length - slidesPerView;
   const contentWidth = containerWidth * data.length;
 
   const getOffset = (activeIndex) => activeIndex * containerWidth;
 
   useEffect(() => {
     setContainerWidth(Math.round(carouselRef.current.offsetWidth / slidesPerView));
+    setCarouselState({
+      activeIndex: 0,
+      offset: 0,
+    });
   }, [slidesPerView]);
 
   useEffect(() => {
@@ -42,16 +46,16 @@ const CarouselLight = ({ data, pagination, arrows, slidesPerView }) => {
       return null;
     }
 
-    if (carouselState.activeSlide === lastSlideIndex) {
+    if (carouselState.activeIndex === lastSlideIndex) {
       return setCarouselState({
         ...carouselState,
-        offset: getOffset(carouselState.activeSlide),
+        offset: getOffset(carouselState.activeIndex),
       });
     }
 
-    if (carouselState.activeSlide === lastSlideIndex) {
+    if (carouselState.activeIndex === lastSlideIndex) {
       return setCarouselState({
-        activeSlide: 0,
+        activeIndex: 0,
         offset: 0,
       });
     }
@@ -59,8 +63,8 @@ const CarouselLight = ({ data, pagination, arrows, slidesPerView }) => {
     setTransition(true);
 
     return setCarouselState({
-      activeSlide: carouselState.activeSlide + 1,
-      offset: getOffset(carouselState.activeSlide + 1),
+      activeIndex: carouselState.activeIndex + 1,
+      offset: getOffset(carouselState.activeIndex + 1),
     });
   };
 
@@ -69,16 +73,16 @@ const CarouselLight = ({ data, pagination, arrows, slidesPerView }) => {
       return null;
     }
 
-    if (carouselState.activeSlide === 0) {
+    if (carouselState.activeIndex === 0) {
       return setCarouselState({
         ...carouselState,
-        offset: getOffset(carouselState.activeSlide),
+        offset: getOffset(carouselState.activeIndex),
       });
     }
 
-    if (carouselState.activeSlide === 0) {
+    if (carouselState.activeIndex === 0) {
       return setCarouselState({
-        activeSlide: lastSlideIndex,
+        activeIndex: lastSlideIndex,
         offset: getOffset(lastSlideIndex),
       });
     }
@@ -86,14 +90,21 @@ const CarouselLight = ({ data, pagination, arrows, slidesPerView }) => {
     setTransition(true);
 
     return setCarouselState({
-      activeSlide: carouselState.activeSlide - 1,
-      offset: getOffset(carouselState.activeSlide - 1),
+      activeIndex: carouselState.activeIndex - 1,
+      offset: getOffset(carouselState.activeIndex - 1),
     });
   };
 
   const ScrollToSlide = (index) => {
-    setCarouselState({
-      activeSlide: index,
+    if (index > lastSlideIndex) {
+      return setCarouselState({
+        activeIndex: lastSlideIndex,
+        offset: getOffset(lastSlideIndex),
+      });
+    }
+
+    return setCarouselState({
+      activeIndex: index,
       offset: getOffset(index),
     });
   };
@@ -138,7 +149,7 @@ const CarouselLight = ({ data, pagination, arrows, slidesPerView }) => {
 
     setCarouselState({
       ...carouselState,
-      offset: getOffset(carouselState.activeSlide),
+      offset: getOffset(carouselState.activeIndex),
     });
     return setMouseOffset(0);
   };
@@ -154,7 +165,7 @@ const CarouselLight = ({ data, pagination, arrows, slidesPerView }) => {
 
     setCarouselState({
       ...carouselState,
-      offset: getOffset(carouselState.activeSlide) + (mouseStart - pageX) * MOUSE_SPEED,
+      offset: getOffset(carouselState.activeIndex) + (mouseStart - pageX) * MOUSE_SPEED,
     });
 
     setMouseOffset(mouseStart - pageX);
@@ -179,11 +190,18 @@ const CarouselLight = ({ data, pagination, arrows, slidesPerView }) => {
       </CarouselContent>
       {arrows && (
         <>
-          {carouselState.activeSlide !== 0 && <ArrowButton direction="left" callback={prevSlide} />}
-          {carouselState.activeSlide !== lastSlideIndex && <ArrowButton direction="right" callback={nextSlide} />}
+          {carouselState.activeIndex !== 0 && <ArrowButton direction="left" callback={prevSlide} />}
+          {carouselState.activeIndex !== lastSlideIndex && <ArrowButton direction="right" callback={nextSlide} />}
         </>
       )}
-      {pagination && <Pagination data={data} activeIndex={carouselState.activeSlide} callback={ScrollToSlide} />}
+      {pagination && (
+        <Pagination
+          data={data.slice(0, lastSlideIndex + 1)}
+          activeIndex={carouselState.activeIndex}
+          callback={ScrollToSlide}
+          slidesPerView={slidesPerView}
+        />
+      )}
     </Carousel>
   );
 };
@@ -209,7 +227,7 @@ const CarouselContent = styled.div.attrs((props) => ({
 
 const Slide = styled.div`
   width: calc(${(props) => 100 / props.slidesPerView}%);
-  margin-right: 6px;
+  margin-right: 5px;
   height: 100%;
   background-image: url('${(props) => props.url}');
   background-position: center;
