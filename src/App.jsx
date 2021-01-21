@@ -9,20 +9,21 @@ const data = [
   'https://images.unsplash.com/photo-1489674267075-cee793167910?ixlib=rb-1.2.1&ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&auto=format&fit=crop&w=967&q=80',
   'https://images.unsplash.com/photo-1484313544071-4d67c88b99be?ixlib=rb-1.2.1&ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&auto=format&fit=crop&w=1352&q=80',
   'https://images.unsplash.com/photo-1445543949571-ffc3e0e2f55e?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
+  'https://images.unsplash.com/photo-1455156218388-5e61b526818b?ixlib=rb-1.2.1&ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&auto=format&fit=crop&w=1350&q=80',
+  'https://images.unsplash.com/photo-1486496146582-9ffcd0b2b2b7?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
+  'https://images.unsplash.com/photo-1483737946376-7c6c89443adb?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=967&q=80',
+  'https://images.unsplash.com/photo-1483309830935-35efd1b07946?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
+  'https://images.unsplash.com/photo-1423145406370-2b342ae5b597?ixlib=rb-1.2.1&ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&auto=format&fit=crop&w=1350&q=80',
+  'https://images.unsplash.com/photo-1483664852095-d6cc6870702d?ixlib=rb-1.2.1&ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&auto=format&fit=crop&w=1350&q=80',
 ];
 
 const App = () => {
-  const [isInfinite, setInfinite] = useState(true);
   const [isArrows, setArrows] = useState(true);
   const [isPagination, setPagination] = useState(true);
-  const [size, setSize] = useState(1);
+  const [slidesPerView, setSlidesPerView] = useState(1);
 
   const handleChangeSize = ({ target }) => {
-    setSize(+target.value);
-  };
-
-  const handleChangeInfinite = ({ target }) => {
-    setInfinite(target.checked);
+    setSlidesPerView(+target.value);
   };
 
   const handleChangeArrows = ({ target }) => {
@@ -37,10 +38,6 @@ const App = () => {
     <div className="container">
       <h1 className="header">CarouselLight demo</h1>
       <div className="control-panel">
-        <label className="label" htmlFor="infinite">
-          <input id="infinite" type="checkbox" onChange={handleChangeInfinite} checked={isInfinite} />
-          Infinite
-        </label>
         <label className="label" htmlFor="arrows">
           <input id="arrows" type="checkbox" onChange={handleChangeArrows} checked={isArrows} />
           Arrows
@@ -59,11 +56,11 @@ const App = () => {
             <option value="4">4</option>
             <option value="5">5</option>
           </select>
-          carouselSize
+          Slides per view
         </label>
       </div>
       <div className="carousel">
-        <CarouselLight data={data} infinite={isInfinite} size={size} arrows={isArrows} pagination={isPagination} />
+        <CarouselLight data={data} slidesPerView={slidesPerView} arrows={isArrows} pagination={isPagination} />
       </div>
     </div>
   );

@@ -1,14 +1,14 @@
-/* eslint-disable no-unused-vars */
 import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import ArrowButton from './ArrowButton';
 import Pagination from './Pagination';
 
-const PSEUDO_SLIDES = 2;
 const TOUCH_LIMIT = 75;
+const TRANSITION_TIME_MS = 1000;
+const MOUSE_SPEED = 3;
 
-const CarouselLight = ({ data, infinite, pagination, arrows, size }) => {
+const CarouselLight = ({ data, pagination, arrows, slidesPerView }) => {
   const [carouselState, setCarouselState] = useState({
     activeSlide: 0,
     offset: 0,
@@ -20,20 +20,29 @@ const CarouselLight = ({ data, infinite, pagination, arrows, size }) => {
   const [isGrabbing, setGrabbing] = useState(false);
   const [mouseOffset, setMouseOffset] = useState(0);
   const [mouseStart, setMouseStart] = useState(0);
+  const [isTransition, setTransition] = useState(false);
 
   const carouselRef = useRef(null);
 
   const lastSlideIndex = data.length - 1;
-  const contentWidth = containerWidth * (data.length + PSEUDO_SLIDES);
+  const contentWidth = containerWidth * data.length;
 
   const getOffset = (activeIndex) => activeIndex * containerWidth;
 
   useEffect(() => {
-    setContainerWidth(carouselRef.current.offsetWidth);
-  }, []);
+    setContainerWidth(Math.round(carouselRef.current.offsetWidth / slidesPerView));
+  }, [slidesPerView]);
+
+  useEffect(() => {
+    setTimeout(() => setTransition(false), TRANSITION_TIME_MS);
+  }, [isTransition]);
 
   const nextSlide = () => {
-    if (!infinite && carouselState.activeSlide === lastSlideIndex) {
+    if (isTransition) {
+      return null;
+    }
+
+    if (carouselState.activeSlide === lastSlideIndex) {
       return setCarouselState({
         ...carouselState,
         offset: getOffset(carouselState.activeSlide),
@@ -47,6 +56,8 @@ const CarouselLight = ({ data, infinite, pagination, arrows, size }) => {
       });
     }
 
+    setTransition(true);
+
     return setCarouselState({
       activeSlide: carouselState.activeSlide + 1,
       offset: getOffset(carouselState.activeSlide + 1),
@@ -54,7 +65,11 @@ const CarouselLight = ({ data, infinite, pagination, arrows, size }) => {
   };
 
   const prevSlide = () => {
-    if (!infinite && carouselState.activeSlide === 0) {
+    if (isTransition) {
+      return null;
+    }
+
+    if (carouselState.activeSlide === 0) {
       return setCarouselState({
         ...carouselState,
         offset: getOffset(carouselState.activeSlide),
@@ -67,6 +82,8 @@ const CarouselLight = ({ data, infinite, pagination, arrows, size }) => {
         offset: getOffset(lastSlideIndex),
       });
     }
+
+    setTransition(true);
 
     return setCarouselState({
       activeSlide: carouselState.activeSlide - 1,
@@ -137,7 +154,7 @@ const CarouselLight = ({ data, infinite, pagination, arrows, size }) => {
 
     setCarouselState({
       ...carouselState,
-      offset: getOffset(carouselState.activeSlide) + (mouseStart - pageX) * 3,
+      offset: getOffset(carouselState.activeSlide) + (mouseStart - pageX) * MOUSE_SPEED,
     });
 
     setMouseOffset(mouseStart - pageX);
@@ -156,20 +173,14 @@ const CarouselLight = ({ data, infinite, pagination, arrows, size }) => {
       grab={isGrabbing}
     >
       <CarouselContent offset={carouselState.offset} width={contentWidth}>
-        <Slide key={`${data[lastSlideIndex]}pseudo`} url={data[lastSlideIndex]} draggable />
         {data.map((image) => (
-          <Slide key={image} url={image} draggable />
+          <Slide key={image} url={image} slidesPerView={slidesPerView} draggable />
         ))}
-        <Slide key={`${data[0]}pseudo`} url={data[0]} draggable />
       </CarouselContent>
       {arrows && (
         <>
-          {(infinite || (!infinite && carouselState.activeSlide !== 0)) && (
-            <ArrowButton direction="left" callback={prevSlide} />
-          )}
-          {(infinite || (!infinite && carouselState.activeSlide !== lastSlideIndex)) && (
-            <ArrowButton direction="right" callback={nextSlide} />
-          )}
+          {carouselState.activeSlide !== 0 && <ArrowButton direction="left" callback={prevSlide} />}
+          {carouselState.activeSlide !== lastSlideIndex && <ArrowButton direction="right" callback={nextSlide} />}
         </>
       )}
       {pagination && <Pagination data={data} activeIndex={carouselState.activeSlide} callback={ScrollToSlide} />}
@@ -197,7 +208,8 @@ const CarouselContent = styled.div.attrs((props) => ({
 `;
 
 const Slide = styled.div`
-  width: 100%;
+  width: calc(${(props) => 100 / props.slidesPerView}%);
+  margin-right: 6px;
   height: 100%;
   background-image: url('${(props) => props.url}');
   background-position: center;
@@ -206,16 +218,14 @@ const Slide = styled.div`
 `;
 
 CarouselLight.defaultProps = {
-  infinite: true,
   arrows: true,
   pagination: true,
-  size: 1,
+  slidesPerView: 1,
 };
 
 CarouselLight.propTypes = {
   data: PropTypes.arrayOf(PropTypes.string).isRequired,
-  size: PropTypes.number,
-  infinite: PropTypes.bool,
+  slidesPerView: PropTypes.number,
   arrows: PropTypes.bool,
   pagination: PropTypes.bool,
 };

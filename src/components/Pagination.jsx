@@ -10,6 +10,7 @@ const Pages = styled.div`
   flex-wrap: wrap;
   left: 0;
   right: 0;
+  z-index: 5;
 `;
 
 const Page = styled.span`

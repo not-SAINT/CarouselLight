@@ -9,6 +9,7 @@ const Button = styled.button`
   height: 20px;
   top: 50%;
   ${(props) => (props.direction === 'left' ? 'left: 25px' : 'right: 25px')};
+  z-index: 5;
   align-items: center;
   justify-content: center;
   padding: 0;
