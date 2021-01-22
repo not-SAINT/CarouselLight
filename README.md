@@ -1,6 +1,6 @@
 # CarouselLight
 
-CarouselLight is a simple slider for any html content for React.
+CarouselLight is a simple slider for any html content for React. Works for mobile and desktop devices. Support swipes, mouse dragging.
 Styled with styled-components.
 No unnecessary dependencies
 
