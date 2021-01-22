@@ -7,8 +7,9 @@ import Pagination from './Pagination';
 const TOUCH_OFFSET_LIMIT = 75;
 const TRANSITION_TIME_MS = 1000;
 const GRAB_SPEED = 3;
+const SLIDES_PER_VIEW_MAX = 5;
 
-const CarouselLight = ({ slides, pagination, arrows, slidesPerView }) => {
+const CarouselLight = ({ slides, pagination, arrows, slidesPerView: size }) => {
   const [carouselState, setCarouselState] = useState({
     activeIndex: 0,
     offset: 0,
@@ -24,7 +25,8 @@ const CarouselLight = ({ slides, pagination, arrows, slidesPerView }) => {
 
   const carouselRef = useRef(null);
 
-  const lastSlideIndex = slides.length - slidesPerView;
+  const slidesPerView = size > SLIDES_PER_VIEW_MAX ? SLIDES_PER_VIEW_MAX : size;
+  const lastSlideIndex = slides.length - slidesPerView < 0 ? 0 : slides.length - slidesPerView;
   const contentWidth = containerWidth * slides.length;
 
   const getOffset = (activeIndex) => activeIndex * containerWidth;
