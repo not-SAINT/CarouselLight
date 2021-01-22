@@ -4,11 +4,11 @@ import styled from 'styled-components';
 import ArrowButton from './ArrowButton';
 import Pagination from './Pagination';
 
-const TOUCH_LIMIT = 75;
+const TOUCH_OFFSET_LIMIT = 75;
 const TRANSITION_TIME_MS = 1000;
 const MOUSE_SPEED = 3;
 
-const CarouselLight = ({ data, pagination, arrows, slidesPerView }) => {
+const CarouselLight = ({ slides, pagination, arrows, slidesPerView }) => {
   const [carouselState, setCarouselState] = useState({
     activeIndex: 0,
     offset: 0,
@@ -24,8 +24,8 @@ const CarouselLight = ({ data, pagination, arrows, slidesPerView }) => {
 
   const carouselRef = useRef(null);
 
-  const lastSlideIndex = data.length - slidesPerView;
-  const contentWidth = containerWidth * data.length;
+  const lastSlideIndex = slides.length - slidesPerView;
+  const contentWidth = containerWidth * slides.length;
 
   const getOffset = (activeIndex) => activeIndex * containerWidth;
 
@@ -95,7 +95,7 @@ const CarouselLight = ({ data, pagination, arrows, slidesPerView }) => {
     });
   };
 
-  const ScrollToSlide = (index) => {
+  const goToSlide = (index) => {
     if (index > lastSlideIndex) {
       return setCarouselState({
         activeIndex: lastSlideIndex,
@@ -119,11 +119,11 @@ const CarouselLight = ({ data, pagination, arrows, slidesPerView }) => {
   };
 
   const handleTouchEnd = () => {
-    if (touchMove && touchStart - touchEnd > TOUCH_LIMIT) {
+    if (touchMove && touchStart - touchEnd > TOUCH_OFFSET_LIMIT) {
       nextSlide();
     }
 
-    if (touchMove && touchStart - touchEnd < -TOUCH_LIMIT) {
+    if (touchMove && touchStart - touchEnd < -TOUCH_OFFSET_LIMIT) {
       prevSlide();
     }
 
@@ -139,11 +139,11 @@ const CarouselLight = ({ data, pagination, arrows, slidesPerView }) => {
   const handleMouseUp = () => {
     setGrabbing(false);
 
-    if (mouseOffset > TOUCH_LIMIT) {
+    if (mouseOffset > TOUCH_OFFSET_LIMIT) {
       return nextSlide();
     }
 
-    if (Math.abs(mouseOffset) > TOUCH_LIMIT) {
+    if (Math.abs(mouseOffset) > TOUCH_OFFSET_LIMIT) {
       return prevSlide();
     }
 
@@ -184,9 +184,14 @@ const CarouselLight = ({ data, pagination, arrows, slidesPerView }) => {
       grab={isGrabbing}
     >
       <CarouselContent offset={carouselState.offset} width={contentWidth}>
-        {data.map((image) => (
-          <Slide key={image} url={image} slidesPerView={slidesPerView} draggable />
-        ))}
+        {slides.map((slide, index) => {
+          const key = `$slide_${index}`;
+          return (
+            <Slide key={key} slidesPerView={slidesPerView} draggable>
+              {slide}
+            </Slide>
+          );
+        })}
       </CarouselContent>
       {arrows && (
         <>
@@ -196,9 +201,9 @@ const CarouselLight = ({ data, pagination, arrows, slidesPerView }) => {
       )}
       {pagination && (
         <Pagination
-          data={data.slice(0, lastSlideIndex + 1)}
+          slides={slides.slice(0, lastSlideIndex + 1)}
           activeIndex={carouselState.activeIndex}
-          callback={ScrollToSlide}
+          callback={goToSlide}
           slidesPerView={slidesPerView}
         />
       )}
@@ -229,10 +234,6 @@ const Slide = styled.div`
   width: calc(${(props) => 100 / props.slidesPerView}%);
   margin-right: 5px;
   height: 100%;
-  background-image: url('${(props) => props.url}');
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
 `;
 
 CarouselLight.defaultProps = {
@@ -242,7 +243,7 @@ CarouselLight.defaultProps = {
 };
 
 CarouselLight.propTypes = {
-  data: PropTypes.arrayOf(PropTypes.string).isRequired,
+  slides: PropTypes.arrayOf(PropTypes.object).isRequired,
   slidesPerView: PropTypes.number,
   arrows: PropTypes.bool,
   pagination: PropTypes.bool,

@@ -5,7 +5,7 @@ import styled from 'styled-components';
 const Pages = styled.div`
   position: absolute;
   display: flex;
-  top: 90%;
+  top: calc(95% - 20px);
   justify-content: center;
   flex-wrap: wrap;
   left: 0;
@@ -26,18 +26,20 @@ const Page = styled.span`
   }
 `;
 
-const Pagination = ({ data, activeIndex, callback }) => {
+const Pagination = ({ slides, activeIndex, callback }) => {
   return (
     <Pages>
-      {data.map((item, index) => (
-        <Page key={item} active={index === activeIndex} onClick={() => callback(index)} />
-      ))}
+      {slides.map((item, index) => {
+        const key = `${item}_${index}`;
+
+        return <Page key={key} active={index === activeIndex} onClick={() => callback(index)} />;
+      })}
     </Pages>
   );
 };
 
 Pagination.propTypes = {
-  data: PropTypes.arrayOf(PropTypes.string).isRequired,
+  slides: PropTypes.arrayOf(PropTypes.object).isRequired,
   activeIndex: PropTypes.number.isRequired,
   callback: PropTypes.func.isRequired,
 };

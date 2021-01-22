@@ -29,3 +29,9 @@
   height: 500px;
   margin: 10px auto;
 }
+
+.carousel-small {
+  max-width: 1000px;
+  height: 200px;
+  margin: 10px auto;
+}
