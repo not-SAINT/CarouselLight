@@ -6,7 +6,7 @@ import Pagination from './Pagination';
 
 const TOUCH_OFFSET_LIMIT = 75;
 const TRANSITION_TIME_MS = 1000;
-const MOUSE_SPEED = 3;
+const GRAB_SPEED = 3;
 
 const CarouselLight = ({ slides, pagination, arrows, slidesPerView }) => {
   const [carouselState, setCarouselState] = useState({
@@ -116,18 +116,28 @@ const CarouselLight = ({ slides, pagination, arrows, slidesPerView }) => {
   const handleTouchMove = ({ targetTouches }) => {
     setTouchEnd(targetTouches[0].clientX);
     setTouchMove(true);
+
+    setCarouselState({
+      ...carouselState,
+      offset: getOffset(carouselState.activeIndex) + (touchStart - targetTouches[0].clientX) * GRAB_SPEED,
+    });
   };
 
   const handleTouchEnd = () => {
+    setTouchMove(false);
+
     if (touchMove && touchStart - touchEnd > TOUCH_OFFSET_LIMIT) {
-      nextSlide();
+      return nextSlide();
     }
 
     if (touchMove && touchStart - touchEnd < -TOUCH_OFFSET_LIMIT) {
-      prevSlide();
+      return prevSlide();
     }
 
-    setTouchMove(false);
+    return setCarouselState({
+      ...carouselState,
+      offset: getOffset(carouselState.activeIndex),
+    });
   };
 
   const handleMouseDown = (e) => {
@@ -165,7 +175,7 @@ const CarouselLight = ({ slides, pagination, arrows, slidesPerView }) => {
 
     setCarouselState({
       ...carouselState,
-      offset: getOffset(carouselState.activeIndex) + (mouseStart - pageX) * MOUSE_SPEED,
+      offset: getOffset(carouselState.activeIndex) + (mouseStart - pageX) * GRAB_SPEED,
     });
 
     setMouseOffset(mouseStart - pageX);
