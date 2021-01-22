@@ -1,4 +1,37 @@
-h1 {
-  color: #27aedb;
+.header {
+  color: #0a4cff;
   text-align: center;
+}
+
+.container {
+  margin: 20px auto;
+  max-width: 1200px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.control-panel {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.label {
+  user-select: none;
+  margin: 0 10px;
+}
+
+.carousel-size {
+  margin-right: 5px;
+}
+
+.carousel {
+  max-width: 1000px;
+  height: 500px;
+  margin: 10px auto;
+}
+
+.carousel-small {
+  max-width: 1000px;
+  height: 200px;
+  margin: 10px auto;
 }

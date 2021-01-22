@@ -2,11 +2,15 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  entry: './src/index.js',
+  entry: {
+    index: './src/index.js',
+  },
   output: {
     path: path.join(__dirname, '/dist'),
-    filename: 'index_bundle.js',
+    filename: '[name].js',
+    sourceMapFilename: '[name].js.map',
   },
+  devtool: 'eval-cheap-source-map',
   resolve: {
     extensions: ['.js', '.jsx'],
   },
